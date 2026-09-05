@@ -5,6 +5,7 @@
 // 只能看当前页的话，攒了一周想回顾时就没法回顾。
 
 import { migrate } from '../core/schema.js';
+import { toBackup, parseBackup, mergeBackup } from '../core/backup.js';
 import { LOCATE_KEY } from '../core/pagekey.js';
 import { toMarkdown, toMarkdownAll, safeFilename, isoDate } from '../core/export.js';
 
@@ -280,3 +281,83 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 refresh();
+
+// ---- 备份与恢复 ----------------------------------------------------------
+//
+// 为什么这个功能必须有：安装已解压的扩展时，扩展 ID 由文件夹路径决定 ——
+// 挪一下目录高亮就全丢；而商店版又是另一个 ID，测试版攒的数据一条都带不过来。
+// 再加上换电脑、重装浏览器。一个卖点是「痕迹不会丢」的产品缺了它，
+// 是定位上的自相矛盾。
+
+$('backup').addEventListener('click', () => {
+  // 备份要包含全部页面，不受当前搜索框过滤影响 ——
+  // 「导出全部 .md」按 visible() 走是对的（那是内容导出），
+  // 但备份按搜索结果走就会悄悄少几页，而用户直到恢复那天才发现。
+  const b = toBackup(docs.map((e) => ({ key: e.key, doc: e.doc })));
+  downloadJSON(JSON.stringify(b, null, 2), safeFilename('书痕备份 ' + isoDate(Date.now()), '.json'));
+  toast('已备份 ' + b.pages.length + ' 个页面');
+});
+
+$('restore').addEventListener('click', () => $('restoreFile').click());
+
+$('restoreFile').addEventListener('change', async (ev) => {
+  const file = ev.target.files && ev.target.files[0];
+  // 选完同一个文件第二次不会再触发 change，除非把 value 清掉。
+  // 用户第一次选错文件、改完再选同一个名字时就会卡在这里。
+  ev.target.value = '';
+  if (!file) return;
+
+  let text;
+  try {
+    text = await file.text();
+  } catch {
+    toast('读不了这个文件');
+    return;
+  }
+
+  const parsed = parseBackup(text);
+  if (!parsed.ok) { toast(parsed.error); return; }
+
+  // 读当前全量 -> 合并 -> 只写回有变化的页。
+  // 中间这段时间别的标签页可能也在写，但导入只往 items 里追加、
+  // 且只写有新条目的页，最坏情况是那一页的新高亮被这次写覆盖 ——
+  // 所以窗口要尽量短，读和写之间不做任何等待用户的操作。
+  const all = await chrome.storage.local.get(null);
+  const existing = {};
+  for (const k of Object.keys(all)) if (k.startsWith(PREFIX)) existing[k] = migrate(all[k]) || all[k];
+
+  const r = mergeBackup(existing, parsed.entries);
+  const keys = Object.keys(r.merged);
+  if (keys.length) {
+    // 写失败必须说出来。storage.local 有配额，一份攒了很久的备份完全可能超；
+    // 不接住的话这里是一个未处理的 rejection，函数当场中断 ——
+    // 后面的 toast 不会执行，用户看到的是「点了没反应」，
+    // 然后以为导入成功了。悄悄失败比报错更糟，这个产品尤其不能这样。
+    try {
+      await chrome.storage.local.set(r.merged);
+    } catch (err) {
+      toast('导入失败，没有写入任何内容：' + (err && err.message ? err.message : '存储写入被拒绝'));
+      return;
+    }
+  }
+  await refresh();
+
+  // 如实报数，包含跳过的。只说「导入成功」的话，
+  // 用户没法判断少掉的那几条是本来就有、还是被吃了。
+  const bits = [];
+  bits.push('导入 ' + r.addedItems + ' 条');
+  if (r.addedPages) bits.push('新增 ' + r.addedPages + ' 页');
+  if (r.skippedItems) bits.push('已存在 ' + r.skippedItems + ' 条跳过');
+  if (parsed.skippedPages) bits.push(parsed.skippedPages + ' 页无法识别');
+  toast(bits.join('，'));
+});
+
+function downloadJSON(text, filename) {
+  const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
