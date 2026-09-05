@@ -6,7 +6,8 @@
 
 - 网站：<https://zhaizongkuo.github.io/shuhen/>
 - 隐私政策：[中文](https://zhaizongkuo.github.io/shuhen/privacy.html) · [English](https://zhaizongkuo.github.io/shuhen/privacy-en.html)
-- Edge 加载项商店：审核中
+- Edge 加载项商店：[安装](https://microsoftedge.microsoft.com/addons/detail/padajahomhgkdnhbbhpfjhcgcpiebelj)（v1.0.0 已上架）
+- Chrome 网上应用店：待上架
 
 由北京留痕软件开发中心出品。
 
