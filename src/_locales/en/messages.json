@@ -1,0 +1,86 @@
+{
+  "extName": {
+    "message": "Shuhen — Highlight & export to Obsidian"
+  },
+  "extShortName": {
+    "message": "Shuhen"
+  },
+  "extDesc": {
+    "message": "Highlight & annotate any web page. Marks survive reloads and infinite scroll. Export to Obsidian / Markdown. No account, no server."
+  },
+  "actionTitle": {
+    "message": "Toggle highlight panel (first click also enables this site)"
+  },
+  "cmdHighlight": {
+    "message": "Highlight selection"
+  },
+  "cmdTogglePanel": {
+    "message": "Show / hide the highlight panel"
+  },
+  "unsupported": {
+    "message": "This browser does not support the CSS Custom Highlight API (needs Chrome/Edge 105+)."
+  },
+  "grantDenied": {
+    "message": "Permission denied. Click the icon again to allow this site."
+  },
+  "notWebPage": {
+    "message": "Highlighting only works on normal http(s) pages."
+  },
+  "uiNote": {
+    "message": "Note"
+  },
+  "uiDelete": {
+    "message": "Delete"
+  },
+  "uiNotePlaceholder": {
+    "message": "Write something… (saved on blur)"
+  },
+  "uiPanelTitle": {
+    "message": "Highlights on this page"
+  },
+  "uiCopyMd": {
+    "message": "Copy Markdown"
+  },
+  "uiDownload": {
+    "message": "Download .md"
+  },
+  "uiCopyText": {
+    "message": "Plain text"
+  },
+  "uiCopied": {
+    "message": "Copied"
+  },
+  "uiCopyFailed": {
+    "message": "Copy failed"
+  },
+  "uiDownloaded": {
+    "message": "Downloaded"
+  },
+  "uiNothing": {
+    "message": "No highlights on this page yet"
+  },
+  "uiEmptyHint": {
+    "message": "Select some text, or press Alt+H"
+  },
+  "uiOrphanTag": {
+    "message": "Original text not found (your data is kept)"
+  },
+  "uiLibrary": {
+    "message": "All highlights"
+  },
+  "uiAllShort": {
+    "message": "All"
+  },
+  "uiKeyHighlight": {
+    "message": "Highlight"
+  },
+  "uiKeyPanel": {
+    "message": "This panel"
+  },
+  "uiKeyUnset": {
+    "message": "not set"
+  },
+  "uiKeySetLink": {
+    "message": "set shortcuts"
+  }
+}

@@ -1,0 +1,97 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>我的高亮</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfbfc; --fg: #1c1c1e; --dim: #6b6b73;
+    --card: #fff; --line: #e6e6ea; --accent: #3b7dd8;
+    --hover: rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17181b; --fg: #e8e8ea; --dim: #9a9aa2;
+      --card: #1f2023; --line: #2c2d31; --accent: #5a9cf0;
+      --hover: rgba(255,255,255,.06);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.6 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  header {
+    position: sticky; top: 0; z-index: 5; background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+  }
+  h1 { margin: 0; font-size: 16px; font-weight: 600; }
+  .stat { color: var(--dim); font-size: 13px; }
+  .grow { flex: 1; }
+  input[type=search] {
+    width: 280px; padding: 7px 11px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--card); color: var(--fg);
+    font: inherit;
+  }
+  button {
+    border: 1px solid var(--line); background: var(--card); color: var(--fg);
+    border-radius: 8px; padding: 7px 12px; font: inherit; cursor: pointer;
+  }
+  button:hover { background: var(--hover); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  main { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 57px); }
+  .pages { border-right: 1px solid var(--line); overflow: auto; }
+  .page {
+    padding: 11px 16px; border-bottom: 1px solid var(--line); cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .page:hover { background: var(--hover); }
+  .page.on { background: var(--hover); border-left-color: var(--accent); }
+  .page .t { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .page .m { color: var(--dim); font-size: 12px; display: flex; gap: 8px; }
+  .page .m span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* 行宽必须有上限。1920 宽的屏上正文拉满一整行，
+     眼睛回到下一行的行首会找不着位置，长段落基本没法读。 */
+  .detail { padding: 18px 22px; overflow: auto; }
+  .detail > * { max-width: 74ch; }
+  .detail h2 { margin: 0 0 4px; font-size: 17px; }
+  .src { color: var(--dim); font-size: 12px; word-break: break-all; }
+  .src a { color: var(--accent); }
+  .acts { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 18px; }
+  .hl {
+    display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .hl:hover { background: var(--hover); }
+  .hl .bar { width: 4px; border-radius: 2px; flex: none; }
+  .hl .body { flex: 1; min-width: 0; }
+  .hl p { margin: 0; word-break: break-word; white-space: pre-wrap; }
+  .hl .note { color: var(--accent); font-size: 13px; margin-top: 4px; }
+  .hl .tag { color: #c66; font-size: 12px; margin-top: 4px; }
+  .hl.code p { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+  .empty { color: var(--dim); padding: 60px 20px; text-align: center; }
+  mark { background: rgba(255,214,0,.5); color: inherit; }
+  .toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+    background: #0d0d0f; color: #fff; padding: 9px 16px; border-radius: 9px;
+    opacity: 0; transition: opacity .16s; pointer-events: none; font-size: 13px;
+  }
+  .toast.show { opacity: 1; }
+</style>
+
+<header>
+  <h1>我的高亮</h1>
+  <span class="stat" id="stat"></span>
+  <span class="grow"></span>
+  <input type="search" id="q" placeholder="搜索高亮内容或标题…">
+  <button id="exportAll">导出全部 .md</button>
+</header>
+
+<main>
+  <div class="pages" id="pages"></div>
+  <div class="detail" id="detail"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+<script src="index.js"></script>

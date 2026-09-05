@@ -1,0 +1,86 @@
+{
+  "extName": {
+    "message": "书痕 - 网页划线高亮批注，导出 Obsidian / Markdown"
+  },
+  "extShortName": {
+    "message": "书痕"
+  },
+  "extDesc": {
+    "message": "在任何网页上划线、高亮、写批注。刷新、改版、无限滚动之后痕迹还在。可导出 Markdown / Obsidian。不用注册，没有服务器，按站点授权。"
+  },
+  "actionTitle": {
+    "message": "打开/收起高亮面板（首次点击会请求本站授权）"
+  },
+  "cmdHighlight": {
+    "message": "高亮选中的文字"
+  },
+  "cmdTogglePanel": {
+    "message": "显示 / 隐藏高亮列表"
+  },
+  "unsupported": {
+    "message": "当前浏览器不支持 CSS Custom Highlight API（需要 Chrome/Edge 105+）。"
+  },
+  "grantDenied": {
+    "message": "你拒绝了授权。再点一次图标可以重新允许本站。"
+  },
+  "notWebPage": {
+    "message": "只能在普通 http(s) 网页上使用。"
+  },
+  "uiNote": {
+    "message": "笔记"
+  },
+  "uiDelete": {
+    "message": "删除"
+  },
+  "uiNotePlaceholder": {
+    "message": "写点什么…（失焦自动保存）"
+  },
+  "uiPanelTitle": {
+    "message": "本页高亮"
+  },
+  "uiCopyMd": {
+    "message": "复制 Markdown"
+  },
+  "uiDownload": {
+    "message": "下载 .md"
+  },
+  "uiCopyText": {
+    "message": "纯文本"
+  },
+  "uiCopied": {
+    "message": "已复制"
+  },
+  "uiCopyFailed": {
+    "message": "复制失败"
+  },
+  "uiDownloaded": {
+    "message": "已下载"
+  },
+  "uiNothing": {
+    "message": "本页还没有高亮"
+  },
+  "uiEmptyHint": {
+    "message": "选中文字，或按 Alt+H"
+  },
+  "uiOrphanTag": {
+    "message": "原文已找不到（数据仍保留）"
+  },
+  "uiLibrary": {
+    "message": "全部高亮"
+  },
+  "uiAllShort": {
+    "message": "全部"
+  },
+  "uiKeyHighlight": {
+    "message": "高亮"
+  },
+  "uiKeyPanel": {
+    "message": "本面板"
+  },
+  "uiKeyUnset": {
+    "message": "未绑定"
+  },
+  "uiKeySetLink": {
+    "message": "去设置快捷键"
+  }
+}
