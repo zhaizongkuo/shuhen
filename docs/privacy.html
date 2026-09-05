@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>书痕 · 隐私政策</title>
+<meta name="description" content="书痕不收集任何数据，也不向任何服务器发送任何东西。没有账号，没有后端，没有统计代码。">
+<style>
+  :root { color-scheme: light dark; --bg:#fbfbfc; --fg:#1c1c1e; --dim:#6b6b73;
+          --line:#e6e6ea; --card:#fff; --accent:#b58900; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#17181b; --fg:#e8e8ea; --dim:#9a9aa2; --line:#2c2d31;
+            --card:#1f2023; --accent:#ffd400; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:16px/1.75 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 48px 22px 80px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 14px; margin-bottom: 34px; }
+  h2 { font-size: 19px; margin: 38px 0 10px; }
+  p, li { margin: 10px 0; }
+  .lead { background: var(--card); border:1px solid var(--line); border-left:4px solid var(--accent);
+          border-radius: 10px; padding: 16px 18px; font-size: 17px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 15px; }
+  th, td { border:1px solid var(--line); padding: 9px 11px; text-align: left; vertical-align: top; }
+  th { background: var(--card); font-weight: 600; }
+  code { background: var(--card); border:1px solid var(--line); border-radius:5px;
+         padding: 1px 6px; font-size: 14px; }
+  a { color: var(--accent); }
+  footer { margin-top: 52px; padding-top: 18px; border-top:1px solid var(--line);
+           color: var(--dim); font-size: 14px; }
+</style>
+
+<div class="wrap">
+<h1>书痕 · 隐私政策</h1>
+<div class="sub">最后更新：2026-09-05 · <a href="./privacy-en.html">English</a></div>
+
+<p class="lead"><b>书痕不收集你的任何数据，也不向任何服务器发送任何东西。</b><br>
+没有账号，没有后端，没有统计代码。</p>
+
+<h2>数据存在哪里</h2>
+<p>你的高亮、笔记、颜色，以及被高亮页面的标题和网址，全部保存在浏览器本地的
+<code>chrome.storage.local</code> 里，<b>只在这台设备上</b>。</p>
+<p>这里用的是 <code>local</code> 而不是 <code>sync</code>：<code>sync</code> 会把数据经由浏览器厂商的服务器
+同步到你的其他设备，<code>local</code> 不会。所以你的高亮内容连浏览器厂商也拿不到。</p>
+<p>卸载扩展时，浏览器会一并删除这些数据。</p>
+
+<h2>我们不做的事</h2>
+<ul>
+  <li>不向任何服务器发送数据（扩展代码里没有任何一处网络请求）</li>
+  <li>不使用任何第三方统计、崩溃上报或广告 SDK</li>
+  <li>不读取、不上传你的浏览历史</li>
+  <li>不要求注册、不要求登录、不要求邮箱</li>
+</ul>
+
+<h2>权限说明</h2>
+<p>安装时，书痕<b>不申请任何网站的访问权限</b>。</p>
+<table>
+  <tr><th>权限</th><th>用来做什么</th></tr>
+  <tr><td><code>storage</code></td><td>把你的高亮保存在本地</td></tr>
+  <tr><td><code>activeTab</code></td><td>你点击扩展图标时，临时获知当前页地址，以便向你申请该站点的授权</td></tr>
+  <tr><td><code>scripting</code></td><td>把高亮功能注入到你已授权的站点</td></tr>
+  <tr><td>站点访问权限</td><td><b>逐站授权。</b>只有你在某个网站上点了扩展图标并同意，书痕才能在那个网站工作</td></tr>
+</table>
+<p>你可以随时在 <code>chrome://extensions</code>（Edge 为 <code>edge://extensions</code>）中撤销任一站点的授权。</p>
+
+<h2>我们在你授权的页面上读什么</h2>
+<p>为了让高亮在页面刷新、改版、无限滚动之后仍能回到原处，书痕需要读取该页面的<b>文本内容</b>，
+并记录你选中的那段文字及其前后各 32 个字符，用于重新定位。</p>
+<p>这些内容<b>只在你的浏览器内存和本地存储中使用</b>，不会离开你的设备。</p>
+
+<h2>导出</h2>
+<p>导出 Markdown / 纯文本时，内容会写入你的剪贴板，或作为文件下载到你自己的电脑。
+这个过程不经过任何服务器。</p>
+
+<h2>儿童隐私</h2>
+<p>书痕不收集任何数据，因此也不会收集儿童的数据。</p>
+
+<h2>变更</h2>
+<p>若本政策发生变化，会更新本页顶部的日期。若将来引入任何形式的数据上传，
+会在扩展内明确告知并征得同意。</p>
+
+<h2>联系</h2>
+<p>有任何疑问请联系：<a href="mailto:zhaizongkuo@163.com">zhaizongkuo@163.com</a></p>
+
+<footer>书痕 · 由北京留痕软件开发中心出品</footer>
+</div>
+</html>

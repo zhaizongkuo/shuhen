@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shuhen — Privacy Policy</title>
+<meta name="description" content="Shuhen collects nothing and sends nothing anywhere. No account, no backend, no analytics.">
+<style>
+  :root { color-scheme: light dark; --bg:#fbfbfc; --fg:#1c1c1e; --dim:#6b6b73;
+          --line:#e6e6ea; --card:#fff; --accent:#b58900; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#17181b; --fg:#e8e8ea; --dim:#9a9aa2; --line:#2c2d31;
+            --card:#1f2023; --accent:#ffd400; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:16px/1.75 -apple-system,"Segoe UI",sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 48px 22px 80px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 14px; margin-bottom: 34px; }
+  h2 { font-size: 19px; margin: 38px 0 10px; }
+  p, li { margin: 10px 0; }
+  .lead { background: var(--card); border:1px solid var(--line); border-left:4px solid var(--accent);
+          border-radius: 10px; padding: 16px 18px; font-size: 17px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 15px; }
+  th, td { border:1px solid var(--line); padding: 9px 11px; text-align: left; vertical-align: top; }
+  th { background: var(--card); font-weight: 600; }
+  code { background: var(--card); border:1px solid var(--line); border-radius:5px;
+         padding: 1px 6px; font-size: 14px; }
+  a { color: var(--accent); }
+  footer { margin-top: 52px; padding-top: 18px; border-top:1px solid var(--line);
+           color: var(--dim); font-size: 14px; }
+</style>
+
+<div class="wrap">
+<h1>Shuhen — Privacy Policy</h1>
+<div class="sub">Last updated: 2026-09-05 · <a href="./privacy.html">中文</a></div>
+
+<p class="lead"><b>Shuhen collects nothing and sends nothing anywhere.</b><br>
+No account, no backend, no analytics.</p>
+
+<h2>Where your data lives</h2>
+<p>Your highlights, notes, colours, and the title and URL of each highlighted page are stored in
+your browser's <code>chrome.storage.local</code> — <b>on this device only</b>.</p>
+<p>This is <code>local</code>, not <code>sync</code>. <code>sync</code> would replicate your data to your other
+devices through the browser vendor's servers; <code>local</code> does not. Your highlights never reach
+the browser vendor either.</p>
+<p>Uninstalling the extension deletes this data along with it.</p>
+
+<h2>What we never do</h2>
+<ul>
+  <li>Send data to any server — there is not a single network request anywhere in the code</li>
+  <li>Use any third-party analytics, crash reporting, or advertising SDK</li>
+  <li>Read or upload your browsing history</li>
+  <li>Ask you to register, sign in, or provide an email address</li>
+</ul>
+
+<h2>Permissions</h2>
+<p>At install time, Shuhen requests access to <b>no websites at all</b>.</p>
+<table>
+  <tr><th>Permission</th><th>Why</th></tr>
+  <tr><td><code>storage</code></td><td>Keep your highlights on this device</td></tr>
+  <tr><td><code>activeTab</code></td><td>When you click the toolbar icon, read the current page's address so we can ask you to authorise that one site</td></tr>
+  <tr><td><code>scripting</code></td><td>Inject the highlighting code into sites you have authorised</td></tr>
+  <tr><td>Site access</td><td><b>Granted per site.</b> Shuhen works on a site only after you click the icon there and approve it</td></tr>
+</table>
+<p>You can revoke any site at any time from <code>chrome://extensions</code> (or <code>edge://extensions</code>).</p>
+
+<h2>What we read on pages you authorise</h2>
+<p>So that a highlight can return to the right place after a reload, a site redesign, or infinite
+scrolling, Shuhen reads the <b>text content</b> of the page, and records the passage you selected
+plus 32 characters of context on either side.</p>
+<p>This is used only in your browser's memory and local storage. It never leaves your device.</p>
+
+<h2>Export</h2>
+<p>Exporting Markdown or plain text writes to your clipboard or downloads a file to your own
+computer. No server is involved.</p>
+
+<h2>Children's privacy</h2>
+<p>Shuhen collects no data, and therefore collects no data from children.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, the date at the top of this page will be updated. If any form of data
+upload is ever introduced, it will be disclosed in the extension and require your consent.</p>
+
+<h2>Contact</h2>
+<p>Questions: <a href="mailto:zhaizongkuo@163.com">zhaizongkuo@163.com</a></p>
+
+<footer>Shuhen — by Beijing Liuhen Software Development Center</footer>
+</div>
+</html>
