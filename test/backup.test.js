@@ -2,16 +2,32 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseBackup, mergeBackup, toBackup, BACKUP_APP, BACKUP_VERSION } from '../src/core/backup.js';
 
-test('不是 JSON 时返回错误，而不是抛异常', () => {
+test('不是 JSON 时返回错误码，而不是抛异常', () => {
   const r = parseBackup('这不是 json{{{');
   assert.equal(r.ok, false);
-  assert.ok(r.error, '要给出可以显示给用户的原因');
+  assert.equal(r.code, 'notJson');
 });
 
 test('是合法 JSON 但不是本产品的备份时，认出来并拒绝', () => {
   for (const text of ['null', '123', '"str"', '[]', '{}', '{"pages":"no"}']) {
     const r = parseBackup(text);
     assert.equal(r.ok, false, text);
+    assert.equal(r.code, 'notBackup', text);
+  }
+});
+
+test('🔴 core 只返回错误码，不返回面向用户的文案', () => {
+  // 这一层是纯函数，拿不到 chrome.i18n —— 真去调它，
+  // 「能被 node --test 直接测」这个设计就毁了。
+  // 所以文案必须留在 UI 层，core 只说「是哪一类错」。
+  //
+  // 用正向约束表达：断言 code 必须长得像标识符。
+  // 反过来写成「不许出现中文」就得在断言里列举中文，
+  // 那种黑名单只挡得住想到的那些。
+  for (const text of ['坏的{{{', '{}']) {
+    const r = parseBackup(text);
+    assert.match(r.code, /^[a-z][A-Za-z]*$/, '错误码应是标识符，不是句子');
+    assert.equal(r.error, undefined, 'core 不该带文案出来');
   }
 });
 

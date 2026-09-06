@@ -82,5 +82,113 @@
   },
   "uiKeySetLink": {
     "message": "去设置快捷键"
+  },
+  "libTitle": {
+    "message": "我的高亮"
+  },
+  "libSearchPh": {
+    "message": "搜索高亮内容或标题…"
+  },
+  "libExportAll": {
+    "message": "导出全部 .md"
+  },
+  "libBackup": {
+    "message": "备份 .json"
+  },
+  "libBackupTip": {
+    "message": "导出完整备份，换电脑或重装浏览器时用它恢复"
+  },
+  "libRestore": {
+    "message": "导入备份"
+  },
+  "libRestoreTip": {
+    "message": "从备份文件恢复。只新增，不会覆盖现有高亮"
+  },
+  "libStatFiltered": {
+    "message": "$1 / $2 个页面"
+  },
+  "libStatAll": {
+    "message": "$1 个页面 · $2 条高亮"
+  },
+  "libNoMatch": {
+    "message": "没有匹配的结果"
+  },
+  "libEmpty": {
+    "message": "还没有高亮。去任意网页点一下扩展图标试试。"
+  },
+  "libUntitled": {
+    "message": "未命名"
+  },
+  "libNItems": {
+    "message": "$1 条"
+  },
+  "libPickPage": {
+    "message": "左侧选一个页面"
+  },
+  "libOpenSource": {
+    "message": "打开原文"
+  },
+  "libDeletePage": {
+    "message": "删除本页高亮"
+  },
+  "libDeleted": {
+    "message": "已删除 $1 条"
+  },
+  "libRestored": {
+    "message": "已恢复"
+  },
+  "libUndo": {
+    "message": "撤销"
+  },
+  "libOrphanNoJump": {
+    "message": "原文已找不到，无法定位"
+  },
+  "libJumpHint": {
+    "message": "点击跳到原文中的位置"
+  },
+  "libNothingToExport": {
+    "message": "没有可导出的内容"
+  },
+  "libAllTitle": {
+    "message": "网页高亮汇总"
+  },
+  "libExported": {
+    "message": "已导出 $1 个页面"
+  },
+  "libBackupName": {
+    "message": "书痕备份"
+  },
+  "libBackedUp": {
+    "message": "已备份 $1 个页面"
+  },
+  "libReadFail": {
+    "message": "读不了这个文件"
+  },
+  "libImportFail": {
+    "message": "导入失败，没有写入任何内容：$1"
+  },
+  "libStorageRejected": {
+    "message": "存储写入被拒绝"
+  },
+  "libImported": {
+    "message": "导入 $1 条"
+  },
+  "libNewPages": {
+    "message": "新增 $1 页"
+  },
+  "libDupSkipped": {
+    "message": "已存在 $1 条跳过"
+  },
+  "libBadPages": {
+    "message": "$1 页无法识别"
+  },
+  "libJoin": {
+    "message": "，"
+  },
+  "errNotJson": {
+    "message": "这个文件不是合法的 JSON，可能选错了文件。"
+  },
+  "errNotBackup": {
+    "message": "这不像书痕导出的备份文件（缺少 pages 列表）。"
   }
 }

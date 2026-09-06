@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>我的高亮</title>
+<title data-i18n="libTitle">My Highlights</title>
 <style>
   :root {
     color-scheme: light dark;
@@ -81,13 +81,15 @@
 </style>
 
 <header>
-  <h1>我的高亮</h1>
+  <h1 data-i18n="libTitle">My Highlights</h1>
   <span class="stat" id="stat"></span>
   <span class="grow"></span>
-  <input type="search" id="q" placeholder="搜索高亮内容或标题…">
-  <button id="exportAll">导出全部 .md</button>
-  <button id="backup" title="导出完整备份，换电脑或重装浏览器时用它恢复">备份 .json</button>
-  <button id="restore" title="从备份文件恢复。只新增，不会覆盖现有高亮">导入备份</button>
+  <input type="search" id="q" data-i18n-placeholder="libSearchPh" placeholder="Search highlights or titles…">
+  <button id="exportAll" data-i18n="libExportAll">Export all .md</button>
+  <button id="backup" data-i18n="libBackup" data-i18n-title="libBackupTip"
+          title="Full backup — use it to restore on a new computer or browser">Back up .json</button>
+  <button id="restore" data-i18n="libRestore" data-i18n-title="libRestoreTip"
+          title="Restore from a backup file. Only adds — never overwrites existing highlights">Import backup</button>
   <!-- 文件选择框藏起来，由「导入备份」按钮触发。
        直接摆一个 <input type=file> 在工具栏里，样式没法和其他按钮统一，
        而且它会常驻显示「未选择文件」，看着像出了错。 -->

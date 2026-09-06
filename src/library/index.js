@@ -13,6 +13,22 @@ const SWATCH = { yellow: '#ffd600', green: '#4ade80', blue: '#60a5fa', pink: '#f
 const PREFIX = 'pg:';
 
 const $ = (id) => document.getElementById(id);
+
+// 总览页跑在扩展自己的页面里，chrome.i18n 直接可用 ——
+// 不像划词工具条在 MAIN world 里拿不到，得由 bridge 把文案送过去。
+// 取不到时回落成 key 本身：界面会难看，但不会变成空白让人以为坏了。
+// substitutions 一律转成字符串 —— getMessage 传数字不生效，
+// 而它不报错，只是占位符原样留在界面上。
+const i18n = (k, subs) =>
+  chrome.i18n.getMessage(k, subs == null ? undefined : [].concat(subs).map(String)) || k;
+
+// HTML 里的静态文案用 data-i18n 标记，标签里写英文当兜底 ——
+// key 拼错或 messages.json 漏了的时候，英文比空白强。
+function applyI18n() {
+  for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = i18n(el.dataset.i18n);
+  for (const el of document.querySelectorAll('[data-i18n-title]')) el.title = i18n(el.dataset.i18nTitle);
+  for (const el of document.querySelectorAll('[data-i18n-placeholder]')) el.placeholder = i18n(el.dataset.i18nPlaceholder);
+}
 let docs = [];        // [{key, doc}]
 let currentKey = null;
 let query = '';
@@ -78,13 +94,13 @@ function renderPages() {
 
   const total = docs.reduce((n, e) => n + e.doc.items.length, 0);
   $('stat').textContent = query
-    ? `${list.length} / ${docs.length} 个页面`
-    : `${docs.length} 个页面 · ${total} 条高亮`;
+    ? i18n('libStatFiltered', [list.length, docs.length])
+    : i18n('libStatAll', [docs.length, total]);
 
   if (!list.length) {
     const d = document.createElement('div');
     d.className = 'empty';
-    d.textContent = docs.length ? '没有匹配的结果' : '还没有高亮。去任意网页点一下扩展图标试试。';
+    d.textContent = docs.length ? i18n('libNoMatch') : i18n('libEmpty');
     box.appendChild(d);
     return;
   }
@@ -96,14 +112,14 @@ function renderPages() {
     const t = document.createElement('div');
     t.className = 't';
     t.title = e.doc.title || e.doc.url;
-    markInto(t, e.doc.title || e.doc.url || '未命名', query);
+    markInto(t, e.doc.title || e.doc.url || i18n('libUntitled'), query);
 
     const m = document.createElement('div');
     m.className = 'm';
     const host = document.createElement('span');
     host.textContent = hostOf(e.doc.url);
     const cnt = document.createElement('span');
-    cnt.textContent = e.doc.items.length + ' 条';
+    cnt.textContent = i18n('libNItems', e.doc.items.length);
     const dt = document.createElement('span');
     dt.textContent = isoDate(e.doc.updated || e.doc.created);
     m.append(host, cnt, dt);
@@ -121,7 +137,7 @@ function renderDetail() {
   if (!entry) {
     const d = document.createElement('div');
     d.className = 'empty';
-    d.textContent = '左侧选一个页面';
+    d.textContent = i18n('libPickPage');
     box.appendChild(d);
     return;
   }
@@ -129,7 +145,7 @@ function renderDetail() {
   const doc = entry.doc;
 
   const h = document.createElement('h2');
-  h.textContent = doc.title || doc.url || '未命名';
+  h.textContent = doc.title || doc.url || i18n('libUntitled');
   const src = document.createElement('div');
   src.className = 'src';
   if (doc.url) {
@@ -144,24 +160,24 @@ function renderDetail() {
   const acts = document.createElement('div');
   acts.className = 'acts';
   acts.append(
-    button('复制 Markdown', 'primary', async () => {
+    button(i18n('uiCopyMd'), 'primary', async () => {
       await navigator.clipboard.writeText(toMarkdown(doc));
-      toast('已复制');
+      toast(i18n('uiCopied'));
     }),
-    button('下载 .md', '', () => {
+    button(i18n('uiDownload'), '', () => {
       download(toMarkdown(doc), safeFilename(doc.title));
-      toast('已下载');
+      toast(i18n('uiDownloaded'));
     }),
-    button('打开原文', '', () => doc.url && chrome.tabs.create({ url: doc.url })),
-    button('删除本页高亮', '', async () => {
+    button(i18n('libOpenSource'), '', () => doc.url && chrome.tabs.create({ url: doc.url })),
+    button(i18n('libDeletePage'), '', async () => {
       // 不做二次确认对话框，但删除是可撤销的：先存一份，顶部给撤销
       const backup = { key: entry.key, value: doc };
       await chrome.storage.local.remove(entry.key);
       await refresh();
-      toastUndo('已删除 ' + doc.items.length + ' 条', async () => {
+      toastUndo(i18n('libDeleted', doc.items.length), async () => {
         await chrome.storage.local.set({ [backup.key]: backup.value });
         await refresh();
-        toast('已恢复');
+        toast(i18n('libRestored'));
       });
     }),
   );
@@ -191,7 +207,7 @@ function renderDetail() {
     if (it.orphaned) {
       const tg = document.createElement('p');
       tg.className = 'tag';
-      tg.textContent = '原文已找不到（数据仍保留）';
+      tg.textContent = i18n('uiOrphanTag');
       body.appendChild(tg);
     }
     row.append(bar, body);
@@ -199,7 +215,7 @@ function renderDetail() {
     // 点一条 -> 打开原文并滚到那句话上，闪三下。
     // 没有这个的话，「我记得划过一句话，在哪儿？」搜到了也跳不过去，
     // 总览页只完成了一半。
-    row.title = it.orphaned ? '原文已找不到，无法定位' : '点击跳到原文中的位置';
+    row.title = it.orphaned ? i18n('libOrphanNoJump') : i18n('libJumpHint');
     row.style.cursor = it.orphaned ? 'default' : 'pointer';
     if (!it.orphaned && doc.url) {
       row.addEventListener('click', async () => {
@@ -226,9 +242,9 @@ function button(label, cls, fn) {
 // 一个误点就永久清掉一整页高亮，跟卖点直接矛盾。
 function toastUndo(msg, undo) {
   const el = $('toast');
-  el.textContent = msg + '　';
+  el.textContent = msg + ' ';
   const b = document.createElement('button');
-  b.textContent = '撤销';
+  b.textContent = i18n('libUndo');
   b.style.cssText = 'pointer-events:auto;margin-left:6px;padding:3px 9px;font-size:12px';
   b.addEventListener('click', async () => { el.classList.remove('show'); await undo(); });
   el.appendChild(b);
@@ -270,9 +286,9 @@ $('q').addEventListener('input', (e) => {
 
 $('exportAll').addEventListener('click', () => {
   const list = visible().map((e) => e.doc);
-  if (!list.length) { toast('没有可导出的内容'); return; }
-  download(toMarkdownAll(list), safeFilename('网页高亮汇总 ' + isoDate(Date.now())));
-  toast('已导出 ' + list.length + ' 个页面');
+  if (!list.length) { toast(i18n('libNothingToExport')); return; }
+  download(toMarkdownAll(list), safeFilename(i18n('libAllTitle') + ' ' + isoDate(Date.now())));
+  toast(i18n('libExported', list.length));
 });
 
 // 别的标签页在划高亮时，这个页面要跟着更新
@@ -280,6 +296,8 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && Object.keys(changes).some((k) => k.startsWith(PREFIX))) refresh();
 });
 
+// 先把界面文案按当前语言填好，再渲染数据 —— 顺序反过来会闪一下英文。
+applyI18n();
 refresh();
 
 // ---- 备份与恢复 ----------------------------------------------------------
@@ -294,8 +312,8 @@ $('backup').addEventListener('click', () => {
   // 「导出全部 .md」按 visible() 走是对的（那是内容导出），
   // 但备份按搜索结果走就会悄悄少几页，而用户直到恢复那天才发现。
   const b = toBackup(docs.map((e) => ({ key: e.key, doc: e.doc })));
-  downloadJSON(JSON.stringify(b, null, 2), safeFilename('书痕备份 ' + isoDate(Date.now()), '.json'));
-  toast('已备份 ' + b.pages.length + ' 个页面');
+  downloadJSON(JSON.stringify(b, null, 2), safeFilename(i18n('libBackupName') + ' ' + isoDate(Date.now()), '.json'));
+  toast(i18n('libBackedUp', b.pages.length));
 });
 
 $('restore').addEventListener('click', () => $('restoreFile').click());
@@ -311,12 +329,13 @@ $('restoreFile').addEventListener('change', async (ev) => {
   try {
     text = await file.text();
   } catch {
-    toast('读不了这个文件');
+    toast(i18n('libReadFail'));
     return;
   }
 
   const parsed = parseBackup(text);
-  if (!parsed.ok) { toast(parsed.error); return; }
+  // core 只给错误码，文案在这一层查表：那一层是纯函数、拿不到 chrome.i18n。
+  if (!parsed.ok) { toast(i18n('err' + parsed.code[0].toUpperCase() + parsed.code.slice(1))); return; }
 
   // 读当前全量 -> 合并 -> 只写回有变化的页。
   // 中间这段时间别的标签页可能也在写，但导入只往 items 里追加、
@@ -336,7 +355,7 @@ $('restoreFile').addEventListener('change', async (ev) => {
     try {
       await chrome.storage.local.set(r.merged);
     } catch (err) {
-      toast('导入失败，没有写入任何内容：' + (err && err.message ? err.message : '存储写入被拒绝'));
+      toast(i18n('libImportFail', err && err.message ? err.message : i18n('libStorageRejected')));
       return;
     }
   }
@@ -345,11 +364,11 @@ $('restoreFile').addEventListener('change', async (ev) => {
   // 如实报数，包含跳过的。只说「导入成功」的话，
   // 用户没法判断少掉的那几条是本来就有、还是被吃了。
   const bits = [];
-  bits.push('导入 ' + r.addedItems + ' 条');
-  if (r.addedPages) bits.push('新增 ' + r.addedPages + ' 页');
-  if (r.skippedItems) bits.push('已存在 ' + r.skippedItems + ' 条跳过');
-  if (parsed.skippedPages) bits.push(parsed.skippedPages + ' 页无法识别');
-  toast(bits.join('，'));
+  bits.push(i18n('libImported', r.addedItems));
+  if (r.addedPages) bits.push(i18n('libNewPages', r.addedPages));
+  if (r.skippedItems) bits.push(i18n('libDupSkipped', r.skippedItems));
+  if (parsed.skippedPages) bits.push(i18n('libBadPages', parsed.skippedPages));
+  toast(bits.join(i18n('libJoin')));
 });
 
 function downloadJSON(text, filename) {

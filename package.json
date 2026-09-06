@@ -1,13 +1,13 @@
 {
   "name": "pf-highlighter",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "网页高亮 Chrome 扩展。锚定引擎在 src/core，与浏览器扩展 API 无耦合。",
   "scripts": {
     "build": "node build.mjs",
     "watch": "node build.mjs --watch",
-    "test": "eslint src && node checklimits.mjs && node checkprivacy.mjs && node --test \"test/*.test.js\"",
+    "test": "eslint src && node checklimits.mjs && node checkprivacy.mjs && node checki18n.mjs && node --test \"test/*.test.js\"",
     "lint": "eslint src"
   },
   "devDependencies": {

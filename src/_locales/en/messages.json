@@ -82,5 +82,113 @@
   },
   "uiKeySetLink": {
     "message": "set shortcuts"
+  },
+  "libTitle": {
+    "message": "My Highlights"
+  },
+  "libSearchPh": {
+    "message": "Search highlights or titles…"
+  },
+  "libExportAll": {
+    "message": "Export all .md"
+  },
+  "libBackup": {
+    "message": "Back up .json"
+  },
+  "libBackupTip": {
+    "message": "Full backup — use it to restore on a new computer or browser"
+  },
+  "libRestore": {
+    "message": "Import backup"
+  },
+  "libRestoreTip": {
+    "message": "Restore from a backup file. Only adds — never overwrites existing highlights"
+  },
+  "libStatFiltered": {
+    "message": "$1 / $2 pages"
+  },
+  "libStatAll": {
+    "message": "$1 pages · $2 highlights"
+  },
+  "libNoMatch": {
+    "message": "No matching results"
+  },
+  "libEmpty": {
+    "message": "No highlights yet. Open any web page and click the extension icon."
+  },
+  "libUntitled": {
+    "message": "Untitled"
+  },
+  "libNItems": {
+    "message": "$1 highlights"
+  },
+  "libPickPage": {
+    "message": "Pick a page on the left"
+  },
+  "libOpenSource": {
+    "message": "Open source page"
+  },
+  "libDeletePage": {
+    "message": "Delete this page"
+  },
+  "libDeleted": {
+    "message": "Deleted $1 highlights"
+  },
+  "libRestored": {
+    "message": "Restored"
+  },
+  "libUndo": {
+    "message": "Undo"
+  },
+  "libOrphanNoJump": {
+    "message": "Original text not found — cannot jump"
+  },
+  "libJumpHint": {
+    "message": "Click to jump to this spot in the source"
+  },
+  "libNothingToExport": {
+    "message": "Nothing to export"
+  },
+  "libAllTitle": {
+    "message": "Web highlights"
+  },
+  "libExported": {
+    "message": "Exported $1 pages"
+  },
+  "libBackupName": {
+    "message": "Shuhen backup"
+  },
+  "libBackedUp": {
+    "message": "Backed up $1 pages"
+  },
+  "libReadFail": {
+    "message": "Cannot read this file"
+  },
+  "libImportFail": {
+    "message": "Import failed, nothing was written: $1"
+  },
+  "libStorageRejected": {
+    "message": "Storage write was rejected"
+  },
+  "libImported": {
+    "message": "Imported $1"
+  },
+  "libNewPages": {
+    "message": "$1 new pages"
+  },
+  "libDupSkipped": {
+    "message": "$1 already existed, skipped"
+  },
+  "libBadPages": {
+    "message": "$1 pages unrecognized"
+  },
+  "libJoin": {
+    "message": ", "
+  },
+  "errNotJson": {
+    "message": "This file is not valid JSON — you may have picked the wrong one."
+  },
+  "errNotBackup": {
+    "message": "This does not look like a Shuhen backup (no pages list)."
   }
 }

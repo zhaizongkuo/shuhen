@@ -25,11 +25,15 @@ const PREFIX = 'pg:';
  * 解析一份备份文件。
  *
  * 绝不抛异常 —— 用户选中的可能是任意一个文件（选错了、传输截断了、
- * 被别的程序改过），那种时候要给一句能看懂的话，而不是让页面白屏。
+ * 被别的程序改过），那种时候要给一个能翻译成人话的结果，而不是让页面白屏。
+ *
+ * 失败时只返回 code，不返回文案：这一层是纯函数，拿不到 chrome.i18n，
+ * 真去调它，「能被 node --test 直接测」这个设计就毁了。
+ * 文案留在 UI 层按 code 查表。
  *
  * @param {string} text 文件内容
  * @returns {{ok:true, entries:{key:string,doc:object}[], skippedPages:number}
- *          |{ok:false, error:string}}
+ *          |{ok:false, code:'notJson'|'notBackup'}}
  */
 export function parseBackup(text) {
   let raw;
@@ -40,12 +44,12 @@ export function parseBackup(text) {
     // 「这个文件不是合法的 JSON」—— 于是以为备份坏了，把唯一那份删掉。
     raw = JSON.parse(text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text);
   } catch {
-    return { ok: false, error: '这个文件不是合法的 JSON，可能选错了文件。' };
+    return { ok: false, code: 'notJson' };
   }
 
   // 数组也要挡掉：JSON.parse('[]') 是 object，typeof 判断放它过去。
   if (!raw || typeof raw !== 'object' || Array.isArray(raw) || !Array.isArray(raw.pages)) {
-    return { ok: false, error: '这不像书痕导出的备份文件（缺少 pages 列表）。' };
+    return { ok: false, code: 'notBackup' };
   }
 
   const entries = [];
