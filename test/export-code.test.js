@@ -37,20 +37,20 @@ test('🔴 内容里本来就有 ``` 时，围栏要更长，否则代码块中�
 
 test('代码块失联时不接 "> "，否则会另起一个引用块看着像多一条高亮', () => {
   const md = toMarkdown(docOf([{ text: 'foo()', kind: 'code', orphaned: true }]));
-  assert.ok(md.includes('原文已找不到'));
-  assert.ok(!md.includes('> *（原文已找不到'), '代码后面不该出现引用块标记');
+  assert.ok(md.includes('original text not found'));
+  assert.ok(!md.includes('> *(original text not found'), '代码后面不该出现引用块标记');
 });
 
 test('有 frontmatter 时不再重复输出 H1 和原文链接', () => {
   const md = toMarkdown(docOf([{ text: 'x' }]));
   assert.ok(md.startsWith('---'));
   assert.ok(!md.includes('# 标题'), 'Obsidian 已用文件名做标题，重复的 H1 是噪音');
-  assert.ok(!md.includes('[原文]'), 'source 属性已经是可点链接');
+  assert.ok(!md.includes('[Source]'), 'source 属性已经是可点链接');
   assert.ok(md.includes('source: "https://a.com/p"'));
 });
 
 test('关掉 frontmatter 时，H1 和原文链接要回来（贴进别的工具时需要）', () => {
   const md = toMarkdown(docOf([{ text: 'x' }]), { frontmatter: false });
   assert.ok(md.startsWith('# 标题'));
-  assert.ok(md.includes('[原文](https://a.com/p)'));
+  assert.ok(md.includes('[Source](https://a.com/p)'));
 });

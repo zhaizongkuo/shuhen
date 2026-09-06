@@ -6,6 +6,42 @@
 
 import { toExportRows } from './schema.js';
 
+// 导出文件里出现的固定文案。
+//
+// 这一层是纯函数，**不能调 chrome.i18n** —— 真去调它，
+// 「能被 node --test 直接测」这个设计就没了，而那是锚定算法能被测住的前提。
+// 所以文案由调用方注入，这里只留兜底。
+//
+// 兜底取英文而不是中文：调用方万一忘了传，英文用户看到英文、
+// 中文用户也看到英文 —— 后者能看懂，反过来不成立。
+export const DEFAULT_LABELS = {
+  untitled: 'Untitled',
+  source: 'Source',
+  orphaned: '(original text not found — the site may have changed)',
+  allTitle: 'Web highlights',
+};
+
+function labelsOf(o) {
+  if (!o || !o.labels) return DEFAULT_LABELS;
+  // 不能直接 spread：调用方常常写成 { untitled: s.expUntitled, ... }，
+  // 而 s 是跨 world 传过来的对象 —— 少一个键就是 undefined，
+  // spread 会让它盖掉默认值，导出的文件里出现「# undefined」，且不报错。
+  // 只接受非空字符串，其余一律回落。
+  const out = { ...DEFAULT_LABELS };
+  for (const k of Object.keys(DEFAULT_LABELS)) {
+    const v = o.labels[k];
+    if (typeof v === 'string' && v !== '') out[k] = v;
+  }
+  return out;
+}
+
+// 标签会被拼进正则（多页合并时要按标签去掉每页自带的那行链接）。
+// 不转义的话，一个带括号的标签就能让整个替换静默失配 ——
+// 不报错，只是文件里多出一行重复的链接。
+function escapeRe(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function pad(n) { return n < 10 ? '0' + n : String(n); }
 
 export function isoDate(ts) {
@@ -51,8 +87,9 @@ export function toMarkdown(doc, opts) {
   const o = opts || {};
   const withFm = o.frontmatter !== false;
   const withNotes = o.includeNotes !== false;
+  const L = labelsOf(o);
   const rows = toExportRows(doc);
-  const title = doc.title || doc.url || '未命名';
+  const title = doc.title || doc.url || L.untitled;
   const out = [];
 
   if (withFm) {
@@ -72,7 +109,7 @@ export function toMarkdown(doc, opts) {
   if (!withFm) {
     out.push('# ' + title);
     out.push('');
-    if (doc.url) { out.push('[原文](' + doc.url + ')'); out.push(''); }
+    if (doc.url) { out.push('[' + L.source + '](' + doc.url + ')'); out.push(''); }
   }
 
   for (const r of rows) {
@@ -99,8 +136,8 @@ export function toMarkdown(doc, opts) {
     // 但要如实标出来，别让人以为原文还在那儿。
     // 代码围栏后面不能接 "> "，那会另起一个引用块，看着像多了一条高亮。
     if (r.orphaned) {
-      if (isCode) out.push('*（原文已找不到，可能是站点改版）*');
-      else { out.push('>'); out.push('> *（原文已找不到，可能是站点改版）*'); }
+      if (isCode) out.push('*' + L.orphaned + '*');
+      else { out.push('>'); out.push('> *' + L.orphaned + '*'); }
     }
     out.push('');
     if (withNotes && r.note) { out.push(r.note); out.push(''); }
@@ -117,13 +154,14 @@ export function toMarkdown(doc, opts) {
  */
 export function toMarkdownAll(docs, opts) {
   const o = opts || {};
+  const L = labelsOf(o);
   const list = docs.filter((d) => d && d.items && d.items.length);
   const out = [];
   const total = list.reduce((n, d) => n + d.items.length, 0);
 
   if (o.frontmatter !== false) {
     out.push('---');
-    out.push('title: ' + yamlString(o.title || '网页高亮汇总'));
+    out.push('title: ' + yamlString(o.title || L.allTitle));
     out.push('created: ' + isoDate(Date.now()));
     out.push('pages: ' + list.length);
     out.push('highlights: ' + total);
@@ -132,13 +170,15 @@ export function toMarkdownAll(docs, opts) {
   }
 
   for (const d of list) {
-    out.push('## ' + (d.title || d.url || '未命名'));
+    out.push('## ' + (d.title || d.url || L.untitled));
     out.push('');
-    if (d.url) { out.push('[原文](' + d.url + ')'); out.push(''); }
-    // 每页正文不再带自己的 frontmatter 和标题，避免层级打架
-    out.push(toMarkdown(d, { frontmatter: false, includeNotes: o.includeNotes })
+    if (d.url) { out.push('[' + L.source + '](' + d.url + ')'); out.push(''); }
+    // 每页正文不再带自己的 frontmatter 和标题，避免层级打架。
+    // labels 必须一路传下去 —— 漏传的话外层是中文、每页正文里是英文兜底，
+    // 而且不报错，只是导出的文件半中半英。
+    out.push(toMarkdown(d, { frontmatter: false, includeNotes: o.includeNotes, labels: o.labels })
       .replace(/^# .*\n+/, '')
-      .replace(/^\[原文\]\([^)]*\)\n+/m, ''));
+      .replace(new RegExp('^\\[' + escapeRe(L.source) + '\\]\\([^)]*\\)\\n+', 'm'), ''));
     out.push('');
   }
   return out.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';

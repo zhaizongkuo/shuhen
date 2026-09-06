@@ -93,15 +93,15 @@ export function createToolbar(opts) {
 
   const noteBtn = document.createElement('button');
   noteBtn.className = 'btn';
-  noteBtn.textContent = strings.note || '笔记';
+  noteBtn.textContent = strings.note || 'Note';
 
   const delBtn = document.createElement('button');
   delBtn.className = 'btn danger';
-  delBtn.textContent = strings.del || '删除';
+  delBtn.textContent = strings.del || 'Delete';
 
   const note = document.createElement('textarea');
   note.className = 'note';
-  note.placeholder = strings.notePlaceholder || '写点什么…（失焦自动保存）';
+  note.placeholder = strings.notePlaceholder || 'Write something… (saved on blur)';
 
   row.appendChild(sep);
   row.appendChild(noteBtn);

@@ -22,6 +22,15 @@ const $ = (id) => document.getElementById(id);
 const i18n = (k, subs) =>
   chrome.i18n.getMessage(k, subs == null ? undefined : [].concat(subs).map(String)) || k;
 
+// 导出文件里的固定文案。core/export.js 是纯函数拿不到 chrome.i18n，
+// 所以由这一层注入 —— 每个调用点都要传，漏一处就导出一份半中英的文件。
+const exportLabels = () => ({
+  untitled: i18n('expUntitled'),
+  source: i18n('expSource'),
+  orphaned: i18n('expOrphaned'),
+  allTitle: i18n('expAllTitle'),
+});
+
 // HTML 里的静态文案用 data-i18n 标记，标签里写英文当兜底 ——
 // key 拼错或 messages.json 漏了的时候，英文比空白强。
 function applyI18n() {
@@ -161,11 +170,11 @@ function renderDetail() {
   acts.className = 'acts';
   acts.append(
     button(i18n('uiCopyMd'), 'primary', async () => {
-      await navigator.clipboard.writeText(toMarkdown(doc));
+      await navigator.clipboard.writeText(toMarkdown(doc, { labels: exportLabels() }));
       toast(i18n('uiCopied'));
     }),
     button(i18n('uiDownload'), '', () => {
-      download(toMarkdown(doc), safeFilename(doc.title));
+      download(toMarkdown(doc, { labels: exportLabels() }), safeFilename(doc.title));
       toast(i18n('uiDownloaded'));
     }),
     button(i18n('libOpenSource'), '', () => doc.url && chrome.tabs.create({ url: doc.url })),
@@ -287,7 +296,8 @@ $('q').addEventListener('input', (e) => {
 $('exportAll').addEventListener('click', () => {
   const list = visible().map((e) => e.doc);
   if (!list.length) { toast(i18n('libNothingToExport')); return; }
-  download(toMarkdownAll(list), safeFilename(i18n('libAllTitle') + ' ' + isoDate(Date.now())));
+  download(toMarkdownAll(list, { labels: exportLabels() }),
+    safeFilename(i18n('libAllTitle') + ' ' + isoDate(Date.now())));
   toast(i18n('libExported', list.length));
 });
 

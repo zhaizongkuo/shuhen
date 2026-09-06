@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { toMarkdown, toPlainText, safeFilename } from '../src/core/export.js';
+import { toMarkdown, toPlainText, safeFilename, toMarkdownAll } from '../src/core/export.js';
 import { newDoc, newItem } from '../src/core/schema.js';
 
 function docOf(items, title, url) {
@@ -45,7 +45,7 @@ test('笔记跟在高亮后面，没有笔记就不留空占位', () => {
 test('锚不上的条目照样导出，但要如实标出来', () => {
   const md = toMarkdown(docOf([{ text: '找不到了', orphaned: true }]));
   assert.ok(md.includes('找不到了'));
-  assert.ok(md.includes('原文已找不到'));
+  assert.ok(md.includes('original text not found'));
 });
 
 test('按页面出现顺序排，不按创建顺序', () => {
@@ -96,4 +96,68 @@ test('🔴 跨段落的高亮，导出要用带换行的那份，否则两段黏
 test('display 与 exact 相同时不重复存', () => {
   const it = newItem({ exact: 'abc', prefix: '', suffix: '', start: 0, end: 3 }, 'yellow', 'abc');
   assert.equal(it.display, undefined);
+});
+
+// ---- 文案注入 ------------------------------------------------------------
+//
+// export.js 是纯函数，调 chrome.i18n 就毁掉了「能被 node --test 直接测」，
+// 而那是锚定算法能被测住的前提。所以文案由调用方注入，这里守住兜底行为。
+
+const withUrl = (url) => ({
+  v: 2, url, title: '', created: 1, updated: 1,
+  items: [{ id: 'i1', exact: 'x', start: 0, end: 1, color: 'yellow',
+            note: '', created: 1, orphaned: true }],
+});
+
+test('🔴 没传 labels 时兜底是英文，不是中文', () => {
+  // 兜底取英文：调用方万一忘了传，英文用户看到英文、中文用户也看到英文 ——
+  // 后者能看懂，反过来不成立。
+  const md = toMarkdown(withUrl(''), { frontmatter: false });
+  assert.ok(md.includes('# Untitled'), '标题兜底应是英文');
+  assert.ok(md.includes('original text not found'), '失联标记应是英文');
+});
+
+test('没传 labels 时，原文链接的标签也是英文', () => {
+  const md = toMarkdown(withUrl('https://a.com/p'), { frontmatter: false });
+  assert.ok(md.includes('[Source](https://a.com/p)'));
+});
+
+test('labels 注入后覆盖默认值', () => {
+  const md = toMarkdown(withUrl('https://a.com/p'), {
+    frontmatter: false,
+    labels: { untitled: '未命名', source: '原文', orphaned: '（原文已找不到）' },
+  });
+  assert.ok(md.includes('[原文](https://a.com/p)'));
+  assert.ok(md.includes('（原文已找不到）'));
+  assert.ok(!md.includes('[Source]'), '注入之后不该还留着英文默认值');
+});
+
+test('只注入一部分时，其余仍走默认值', () => {
+  const md = toMarkdown(withUrl(''), { frontmatter: false, labels: { untitled: '未命名' } });
+  assert.ok(md.includes('# 未命名'));
+  assert.ok(md.includes('original text not found'), '没传的 orphaned 应保持英文默认');
+});
+
+test('🔴 多页合并时 labels 要传到每一页 —— 漏传会导出一份半中半英的文件', () => {
+  const docs = [withUrl('https://a.com/p'), withUrl('https://b.com/q')];
+  const md = toMarkdownAll(docs, {
+    labels: { untitled: '未命名', source: '原文', orphaned: '（原文已找不到）', allTitle: '汇总' },
+  });
+  assert.ok(md.includes('title: "汇总"'));
+  assert.ok(!md.includes('Source'), '每页正文里不该漏出英文默认值');
+  assert.ok(!md.includes('original text not found'));
+});
+
+test('🔴 labels 里的 undefined 不许覆盖默认值', () => {
+  // 调用方常常是 { untitled: s.expUntitled, ... } 这种形状，
+  // 而 s 来自跨 world 传过来的对象 —— 少一个键就是 undefined。
+  // 用 spread 合并的话 undefined 会盖掉默认值，导出文件里出现
+  // 「# undefined」，且不报错。
+  const doc = { v: 2, url: '', title: '', created: 1, updated: 1, items: [
+    { id: 'i1', exact: 'x', start: 0, end: 1, color: 'yellow', note: '', created: 1, orphaned: true },
+  ] };
+  const md = toMarkdown(doc, { frontmatter: false, labels: { untitled: undefined, orphaned: '' } });
+  assert.ok(!md.includes('undefined'), '不该把 undefined 写进文件');
+  assert.ok(md.includes('# Untitled'), 'undefined 应回落到默认值');
+  assert.ok(md.includes('original text not found'), '空字符串也应回落');
 });

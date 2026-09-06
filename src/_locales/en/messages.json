@@ -190,5 +190,44 @@
   },
   "errNotBackup": {
     "message": "This does not look like a Shuhen backup (no pages list)."
+  },
+  "expUntitled": {
+    "message": "Untitled"
+  },
+  "expSource": {
+    "message": "Source"
+  },
+  "expOrphaned": {
+    "message": "(original text not found — the site may have changed)"
+  },
+  "expAllTitle": {
+    "message": "Web highlights"
+  },
+  "swEnabled": {
+    "message": "Enabled on this site ($1)"
+  },
+  "swNoUrl": {
+    "message": "Cannot read the current page URL. Reload the page and click the icon again; chrome:// and store pages are not supported."
+  },
+  "swPermFail": {
+    "message": "Permission request failed: $1"
+  },
+  "swPermGesture": {
+    "message": "(a \"user gesture\" error means an await slipped in before the click)"
+  },
+  "swRegFail": {
+    "message": "Registering content scripts failed: $1"
+  },
+  "swInjFail": {
+    "message": "Script injection failed (page CSP or a restricted page): $1"
+  },
+  "mainDeadNotice": {
+    "message": "The extension was updated — reload this page to keep saving highlights"
+  },
+  "mainReload": {
+    "message": "Reload"
+  },
+  "uiNOrphaned": {
+    "message": "$1 lost"
   }
 }

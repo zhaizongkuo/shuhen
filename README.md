@@ -2,11 +2,12 @@
 
 **在网页上划下的那一道，刷新之后还在原处。**
 
-网页划线、高亮、批注，可导出 Markdown / Obsidian。不用注册，没有服务器。
+网页划线、高亮、批注，可导出 Markdown / Obsidian，可整份备份与恢复。
+不用注册，没有服务器。
 
 - 网站：<https://zhaizongkuo.github.io/shuhen/>
 - 隐私政策：[中文](https://zhaizongkuo.github.io/shuhen/privacy.html) · [English](https://zhaizongkuo.github.io/shuhen/privacy-en.html)
-- Edge 加载项商店：[安装](https://microsoftedge.microsoft.com/addons/detail/padajahomhgkdnhbbhpfjhcgcpiebelj)（v1.0.0 已上架）
+- Edge 加载项商店：[安装](https://microsoftedge.microsoft.com/addons/detail/padajahomhgkdnhbbhpfjhcgcpiebelj)（v1.0.0 已上架，v1.1.0 待发）
 - Chrome 网上应用店：待上架
 
 由北京留痕软件开发中心出品。
@@ -60,7 +61,8 @@ src/core/       与浏览器无关，能被 node --test 直接测
   textindex.js    DOM ↔ 字符偏移换算
   pagekey.js      URL 归一化：高亮挂在哪个 key 下
   schema.js       存储格式 + 版本迁移
-  export.js       导出 Markdown（纯函数）
+  export.js       导出 Markdown（纯函数，文案由调用方注入）
+  backup.js       完整备份 / 恢复（纯函数，只返回错误码不返回文案）
 src/content/
   main.js         MAIN world：编排
   bridge.js       ISOLATED world：存储 + 快捷键转发

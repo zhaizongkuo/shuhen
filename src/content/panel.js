@@ -8,6 +8,9 @@
 import { UI_ATTR } from '../core/textindex.js';
 import { toMarkdown, toPlainText, safeFilename } from '../core/export.js';
 
+// 导出文件里的固定文案。core/export.js 拿不到 chrome.i18n，由这里注入；
+// 少传的字段会在 export.js 里回落成英文默认值，不会写出 undefined。
+
 const SWATCH = { yellow: '#ffd600', green: '#4ade80', blue: '#60a5fa', pink: '#f472b6' };
 
 const CSS_TEXT = `
@@ -83,6 +86,10 @@ const CSS_TEXT = `
 
 export function createPanel(opts) {
   const s = opts.strings || {};
+  const expLabels = () => ({
+    untitled: s.expUntitled, source: s.expSource,
+    orphaned: s.expOrphaned, allTitle: s.expAllTitle,
+  });
   const host = document.createElement('div');
   host.setAttribute(UI_ATTR, '');
   host.style.cssText = 'all:initial';
@@ -111,11 +118,11 @@ export function createPanel(opts) {
   const ftEl = panel.querySelector('.btns');
   const keysEl = panel.querySelector('.keys');
   const toastEl = panel.querySelector('.toast');
-  h2.textContent = s.panelTitle || '本页高亮';
+  h2.textContent = s.panelTitle || 'Highlights on this page';
 
   const allBtn = panel.querySelector('.all');
-  allBtn.textContent = (s.allShort || '全部') + ' ↗';
-  allBtn.title = s.library || '全部高亮';
+  allBtn.textContent = (s.allShort || 'All') + ' ↗';
+  allBtn.title = s.library || 'All highlights';
   allBtn.addEventListener('click', () => opts.onOpenLibrary());
 
   panel.querySelector('.x').addEventListener('click', () => setOpen(false));
@@ -167,14 +174,14 @@ export function createPanel(opts) {
   // 底部只放「本页导出」，三个同层级；主次靠 primary 区分，不靠排列顺序。
   // 跨页面的入口在头部，不混进来。
   const buttons = [
-    ['primary', s.copyMd || '复制 Markdown', (doc) => copy(toMarkdown(doc))
-      .then((ok) => toast(ok ? (s.copied || '已复制') : (s.copyFailed || '复制失败')))],
-    ['', s.download || '下载 .md', (doc) => {
-      download(toMarkdown(doc), safeFilename(doc.title));
-      toast(s.downloaded || '已下载');
+    ['primary', s.copyMd || 'Copy Markdown', (doc) => copy(toMarkdown(doc, { labels: expLabels() }))
+      .then((ok) => toast(ok ? (s.copied || 'Copied') : (s.copyFailed || 'Copy failed')))],
+    ['', s.download || 'Download .md', (doc) => {
+      download(toMarkdown(doc, { labels: expLabels() }), safeFilename(doc.title));
+      toast(s.downloaded || 'Downloaded');
     }],
-    ['', s.copyText || '纯文本', (doc) => copy(toPlainText(doc))
-      .then((ok) => toast(ok ? (s.copied || '已复制') : (s.copyFailed || '复制失败')))],
+    ['', s.copyText || 'Plain text', (doc) => copy(toPlainText(doc))
+      .then((ok) => toast(ok ? (s.copied || 'Copied') : (s.copyFailed || 'Copy failed')))],
   ];
   for (const [cls, label, fn] of buttons) {
     const b = document.createElement('button');
@@ -182,7 +189,7 @@ export function createPanel(opts) {
     b.textContent = label;
     b.addEventListener('click', () => {
       const doc = opts.getDoc();
-      if (!doc || !doc.items.length) { toast(s.nothing || '本页还没有高亮'); return; }
+      if (!doc || !doc.items.length) { toast(s.nothing || 'No highlights on this page yet'); return; }
       fn(doc);
     });
     ftEl.appendChild(b);
@@ -194,11 +201,11 @@ export function createPanel(opts) {
   function renderKeys(map) {
     keysEl.textContent = '';
     const rows = [
-      [s.keyHighlight || '高亮', (map && map.highlight) || ''],
-      [s.keyPanel || '本面板', (map && map['toggle-panel']) || ''],
+      [s.keyHighlight || 'Highlight', (map && map.highlight) || ''],
+      [s.keyPanel || 'This panel', (map && map['toggle-panel']) || ''],
     ];
     rows.forEach(([label, key], i) => {
-      if (i) keysEl.appendChild(document.createTextNode('　·　'));
+      if (i) keysEl.appendChild(document.createTextNode(' · '));
       keysEl.appendChild(document.createTextNode(label + ' '));
       if (key) {
         const kbd = document.createElement('kbd');
@@ -207,7 +214,7 @@ export function createPanel(opts) {
       } else {
         const em = document.createElement('span');
         em.className = 'unset';
-        em.textContent = s.keyUnset || '未绑定';
+        em.textContent = s.keyUnset || 'not set';
         em.title = 'chrome://extensions/shortcuts';
         keysEl.appendChild(em);
       }
@@ -226,14 +233,14 @@ export function createPanel(opts) {
 
     const orphan = items.filter((it) => it.orphaned).length;
     countEl.textContent = items.length
-      ? items.length + (orphan ? ' · ' + orphan + ' 条失联' : '')
+      ? items.length + (orphan ? ' · ' + (s.nOrphaned || '$1 lost').replace('$1', orphan) : '')
       : '';
 
     listEl.textContent = '';
     if (!items.length) {
       const d = document.createElement('div');
       d.className = 'empty';
-      d.textContent = s.emptyHint || '选中文字，或按 Alt+H';
+      d.textContent = s.emptyHint || 'Select some text, or press Alt+H';
       listEl.appendChild(d);
       return;
     }
@@ -261,14 +268,14 @@ export function createPanel(opts) {
       if (it.orphaned) {
         const t = document.createElement('p');
         t.className = 'tag';
-        t.textContent = s.orphanTag || '原文已找不到（数据仍保留）';
+        t.textContent = s.orphanTag || 'Original text not found (your data is kept)';
         body.appendChild(t);
       }
 
       const del = document.createElement('button');
       del.className = 'del';
       del.textContent = '×';
-      del.title = s.del || '删除';
+      del.title = s.del || 'Delete';
       del.addEventListener('click', (e) => { e.stopPropagation(); opts.onDelete(it.id); });
 
       row.addEventListener('click', () => opts.onLocate(it.id));

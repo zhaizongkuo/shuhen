@@ -190,5 +190,44 @@
   },
   "errNotBackup": {
     "message": "这不像书痕导出的备份文件（缺少 pages 列表）。"
+  },
+  "expUntitled": {
+    "message": "未命名"
+  },
+  "expSource": {
+    "message": "原文"
+  },
+  "expOrphaned": {
+    "message": "（原文已找不到，可能是站点改版）"
+  },
+  "expAllTitle": {
+    "message": "网页高亮汇总"
+  },
+  "swEnabled": {
+    "message": "已在本站启用（$1）"
+  },
+  "swNoUrl": {
+    "message": "拿不到当前页地址。请刷新该网页后再点一次图标；chrome:// 和商店页不支持。"
+  },
+  "swPermFail": {
+    "message": "申请权限失败：$1"
+  },
+  "swPermGesture": {
+    "message": "（若提示 user gesture，说明点击前多了一次 await）"
+  },
+  "swRegFail": {
+    "message": "注册内容脚本失败：$1"
+  },
+  "swInjFail": {
+    "message": "注入脚本失败（页面 CSP 或受限页面）：$1"
+  },
+  "mainDeadNotice": {
+    "message": "扩展已更新，本页需刷新后才能继续保存高亮"
+  },
+  "mainReload": {
+    "message": "刷新"
+  },
+  "uiNOrphaned": {
+    "message": "$1 条失联"
   }
 }

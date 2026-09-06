@@ -6,7 +6,10 @@ import { pageKey } from '../core/pagekey.js';
 const ISO = 'pf-iso';
 const MAIN = 'pf-main';
 
-const t = (k) => chrome.i18n.getMessage(k) || k;
+// substitutions 一律转成字符串 —— getMessage 传数字不生效，
+// 而且它不报错，只是占位符原样留在界面上。
+const t = (k, subs) =>
+  chrome.i18n.getMessage(k, subs == null ? undefined : [].concat(subs).map(String)) || k;
 
 // 失败必须看得见。不开 DevTools 也要能知道卡在哪一步。
 async function badge(tabId, text, color) {
@@ -55,8 +58,7 @@ chrome.action.onClicked.addListener((tab) => {
   if (!url || pageKey(url) === null) {
     // activeTab 正常情况下会让 tab.url 有值。没有值通常是页面早于扩展加载，
     // 或者当前是受限页面。此时已经没法在手势内申请权限了，只能提示重来。
-    fail(tab && tab.id, 'URL',
-      '拿不到当前页地址。请刷新该网页后再点一次图标；chrome:// 和商店页不支持。');
+    fail(tab && tab.id, 'URL', t('swNoUrl'));
     return;
   }
 
@@ -66,9 +68,7 @@ chrome.action.onClicked.addListener((tab) => {
       if (!granted) { fail(tab.id, 'NO', t('grantDenied')); return; }
       return activate(tab.id, origin);
     })
-    .catch((e) => fail(tab.id, 'PRM',
-      'permissions.request 失败：' + msg(e) +
-      '（若提示 user gesture，说明调用前混进了 await）'));
+    .catch((e) => fail(tab.id, 'PRM', t('swPermFail', msg(e)) + t('swPermGesture')));
 });
 
 function msg(e) { return String((e && e.message) || e); }
@@ -94,7 +94,7 @@ async function activate(tabId, origin) {
   try {
     await register(origin);
   } catch (e) {
-    fail(tabId, 'REG', 'registerContentScripts 失败：' + msg(e));
+    fail(tabId, 'REG', t('swRegFail', msg(e)));
     return;
   }
   // 注册只对后续导航生效，当前页要手动注入一次
@@ -104,11 +104,11 @@ async function activate(tabId, origin) {
     await chrome.scripting.executeScript({
       target: { tabId }, files: ['content/main.js'], world: 'MAIN' });
   } catch (e) {
-    fail(tabId, 'INJ', 'executeScript 失败（页面 CSP 或受限页面）：' + msg(e));
+    fail(tabId, 'INJ', t('swInjFail', msg(e)));
     return;
   }
   await badge(tabId, 'ON', '#0a0');
-  chrome.action.setTitle({ tabId, title: '已在本站启用（' + origin + '）' }).catch(() => {});
+  chrome.action.setTitle({ tabId, title: t('swEnabled', origin) }).catch(() => {});
 
   // 点图标 = 开关面板。用户的本能就是点图标，而原来点完只有一个绿角标、
   // 界面上什么都不发生 —— 首次体验等于「装好了但不知道能干嘛」。

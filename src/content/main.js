@@ -299,6 +299,14 @@ function locateItem(id, withFlash) {
 // 不说的话，用户会以为划上了 —— 而画面上确实划上了，只是存不进去。
 // 这是个罕见但后果严重的状态，所以用一个显眼的常驻条，不用一闪而过的 toast。
 let deadNotice = null;
+
+// 🔴 这两句必须在初始化时就存下来。
+// showDeadNotice() 触发的时刻，正是 bridge 已经失联的时刻 ——
+// 那时再 call('strings') 拿文案，拿到的是一个永远不 resolve 的 promise，
+// 结果就是提示条根本不显示，而它恰恰是用来说明「出事了」的。
+// 兜底用英文：取不到时英文用户看得懂，中文用户也看得懂。
+let deadText = 'The extension was updated — reload this page to keep saving highlights';
+let deadBtn = 'Reload';
 function showDeadNotice() {
   if (deadNotice) return;
   const host = document.createElement('div');
@@ -314,8 +322,11 @@ function showDeadNotice() {
     'button{border:0;border-radius:6px;padding:5px 11px;font:inherit;cursor:pointer;' +
     'background:#fff;color:#7a2b2b}' +
     '</style>' +
-    '<div class="b"><span>扩展已更新，本页需刷新后才能继续保存高亮</span>' +
-    '<button>刷新</button></div>';
+    '<div class="b"><span></span><button></button></div>';
+  // 用 textContent 填，不拼进 innerHTML —— 文案来自 i18n，
+  // 而 messages.json 里出现 < 或 & 的那天，拼字符串会静默把结构改坏。
+  root.querySelector('span').textContent = deadText;
+  root.querySelector('button').textContent = deadBtn;
   root.querySelector('button').addEventListener('click', () => location.reload());
   (document.body || document.documentElement).appendChild(host);
   deadNotice = host;
@@ -441,6 +452,8 @@ async function boot() {
 
   // ---------- 划词工具条 ----------
   const st = (await call('strings')) || {};
+  if (st.mainDeadNotice) deadText = st.mainDeadNotice;
+  if (st.mainReload) deadBtn = st.mainReload;
   toolbar = createToolbar({
     strings: { note: st.uiNote, del: st.uiDelete, notePlaceholder: st.uiNotePlaceholder },
     onColor: (id, color) => (id ? setColor(id, color) : addFromSelection(color)),
@@ -455,6 +468,9 @@ async function boot() {
       copyText: st.uiCopyText, copied: st.uiCopied, copyFailed: st.uiCopyFailed,
       downloaded: st.uiDownloaded, nothing: st.uiNothing,
       emptyHint: st.uiEmptyHint, orphanTag: st.uiOrphanTag, del: st.uiDelete,
+      nOrphaned: st.uiNOrphaned,
+      expUntitled: st.expUntitled, expSource: st.expSource,
+      expOrphaned: st.expOrphaned, expAllTitle: st.expAllTitle,
       library: st.uiLibrary, allShort: st.uiAllShort,
       keyHighlight: st.uiKeyHighlight, keyPanel: st.uiKeyPanel, keyUnset: st.uiKeyUnset,
     },

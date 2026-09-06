@@ -83,6 +83,13 @@ const UI_KEYS = [
   'uiCopied', 'uiCopyFailed', 'uiDownloaded',
   'uiNothing', 'uiEmptyHint', 'uiOrphanTag', 'uiLibrary', 'uiAllShort',
   'uiKeyHighlight', 'uiKeyPanel', 'uiKeyUnset', 'uiKeySetLink',
+  'uiNOrphaned',
+  // 扩展更新后的失联提示条。MAIN world 在那一刻已经问不到文案了，
+  // 所以要在初始化时就一起送过去。
+  'mainDeadNotice', 'mainReload',
+  // 面板里也能导出 Markdown，而 core/export.js 是纯函数拿不到 i18n。
+  // 漏送这几个，从面板导出的文件是英文、从总览页导出的是中文 —— 同一个产品两种输出。
+  'expUntitled', 'expSource', 'expOrphaned', 'expAllTitle',
 ];
 function strings() {
   const out = {};

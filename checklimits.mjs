@@ -18,4 +18,31 @@ for (const loc of await readdir(dir)) {
     if (n > limit) bad++;
   }
 }
+// Two locales must carry exactly the same keys.
+// Adding a key to only one side is bound to happen (you edit the language you
+// actually read), and it fails silently: English users see the raw key on
+// screen, e.g. a button labelled "libBackup". Empty messages behave the same
+// way -- getMessage returns "" and the control renders blank.
+const sets = {};
+for (const loc of await readdir(dir)) {
+  const raw = JSON.parse(await readFile(`${dir}/${loc}/messages.json`, 'utf8'));
+  sets[loc] = new Set(Object.keys(raw));
+  for (const [k, v] of Object.entries(raw)) {
+    if (!v || typeof v.message !== 'string' || !v.message.trim()) {
+      console.error(`[locale] ${loc}/${k}: empty message`);
+      bad++;
+    }
+  }
+}
+const locs = Object.keys(sets);
+for (const a of locs) {
+  for (const b of locs) {
+    if (a === b) continue;
+    for (const k of sets[a]) {
+      if (!sets[b].has(k)) { console.error(`[locale] ${a} has ${k}, ${b} does not`); bad++; }
+    }
+  }
+}
+if (!bad) console.log(`  locale aligned: ${locs.join(' / ')}, ${sets[locs[0]].size} keys each`);
+
 if (bad) { console.error(`\n[限制] ${bad} 处超出商店限制，构建中止`); process.exit(1); }
