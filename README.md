@@ -42,7 +42,7 @@ grep -rn "fetch(\|XMLHttpRequest\|WebSocket\|sendBeacon" src/
 ```bash
 npm install
 npm run build      # 产出 dist/
-npm test           # eslint + 文案长度校验 + 隐私声明校验 + 单元测试
+npm test           # eslint + 文案长度/locale 对齐 + 隐私声明 + i18n 硬编码 + 单元测试
 npm run watch      # 改代码自动重编
 ```
 
